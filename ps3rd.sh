@@ -5,6 +5,7 @@
 # GPL3 Licensed
 # since it's meant to be used with kodi, check forum.kodi.tv for support / help 
 # http://forum.kodi.tv/showthread.php?tid=251308
+# http://forum.kodi.tv/showthread.php?tid=310580
 #
 # Dependencies: bash4, curl, logger, sed, grep
 #
