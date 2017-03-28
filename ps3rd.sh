@@ -1,28 +1,33 @@
 #!/bin/bash
 # PS3 Remote Control Daemon (PS3RD)
 # by -~= The Mechanist =~- 08-12-2015
+# Update: 03-12-2017
 # GPL3 Licensed
+# since it's meant to be used with kodi, check forum.kodi.tv for support / help 
+# http://forum.kodi.tv/showthread.php?tid=251308
 #
 # Dependencies: bash4, curl, logger, sed, grep
 #
-# ! requires advanced privileges (ie root) cause of access to /dev/input 
+# ! requires advanced privileges (e.g. root) cause of access to /dev/input 
 # ! daemonize with & 
 # you'll find it useful to add it to init system of your distribution to run at start up 
-# (ie ubuntu 14.04: cp to /usr/bin, chown root, add /etc/rc.local with &)
+# (e.g. ubuntu 14.04: cp to /usr/bin, chown root, add /etc/rc.local with &)
 #
-# Known to run well ;-) Ubuntu 14.04 + Kodi 15.2 + PS3 BD Remote + bluez/blueman 
-#
+# Known to run well ;-) Ubuntu 14.04 + Kodi 15.2 + PS3 BD Remote + bluez (v. 4.xx) /blueman 
+# Works with Kodi Jarvis, Krypton 17.1
+# *** Ubuntu 16.04 & bluez (v. 5.37): needs changes to line 222 !
 
 #
-# activate webserver & remote control, enter adress (ie http://127.0.0.1:8080)
+# activate webserver & remote control, enter adress (e.g. http://127.0.0.1:8080)
 #
 KODI_HOST=""
-# your secret ..
+# your secret as set in kodi ..
 USER_NAME=""
 USER_PW=""
 
 #
 # at least at debian based systems ..
+# check /proc/bus/input/devices for the remote name: e.g. Ubuntu 16.04 with bluez 5.37 - "BD Remote Control"
 #
 
 PS3_CONTROLLER_NAME="PS3 Remote Controller"
@@ -31,6 +36,7 @@ INPUT_INTERFACES="/dev/input/"
 
 #
 # if in debug mode (0) output to console, else (1) to log via logger (syslog)
+# if script doesn't work, start from command line with debug set to 0 to see, if the keys are correctly recognized
 #
 
 DEBUG=1
@@ -69,7 +75,7 @@ declare -A PS3_TO_KODI
 
 #
 # define some actions
-# bluez recognizes PS3 BD Remote as kbd and maps some keys (ie 0-9, Return)
+# bluez recognizes PS3 BD Remote as kbd and maps some keys (eg. 0-9, Return)
 # these keys can't be remapped that way !
 #
 
@@ -219,6 +225,10 @@ function ps3_to_kodi() {
 	while : 
 	do
 	    # hexdumps waits for event .. redirect stdrr output
+	    # !!!! This line is imported to recognize the pressed keys !!!!
+	    # Obviously it could differ from os to os or bluetooth stack versions:
+	    # in Ubuntu 16.04 with bluez 5.37 change "-s 18" to "-s 42" (offset in data for the keys), try with debug mode enabled
+	    
 	    last_command=$(hexdump -s 18 -n 2 -e '1/2 "%04x"' "$ps3_interface" 2> /dev/null)
 		
 		# hexdump exits with 1 when something went wrong, especially when event handler disconnected 
@@ -255,7 +265,7 @@ function ps3_to_kodi() {
 }
 
 #
-#  main rockz
+#  main rockz .. every real programmer should have a main() at home ;-)
 #
 
 function main() {
