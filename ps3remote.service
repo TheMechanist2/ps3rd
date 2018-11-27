@@ -1,0 +1,8 @@
+[Unit]
+Description=PS3 Remote Daemon
+
+[Service]
+ExecStart=/usr/bin/ps3rd.sh
+
+[Install]
+WantedBy=multi-user.target
